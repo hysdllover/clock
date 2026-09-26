@@ -18,3 +18,10 @@
 - 테스트용 배속: `index.html?speed=60`.
 
 데이터는 기기 브라우저(localStorage)에 저장됩니다.
+
+## iPhone ↔ iPad 동기화 (Gist)
+1. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)** → Generate, 권한 **gist**만 체크.
+2. 각 기기 앱의 **설정 → Gist 동기화**에 같은 토큰 입력 → **저장 · 지금 동기화**.
+3. 첫 기기에서 비공개 Gist(`suneung-timer.json`)가 자동 생성되고, 다른 기기는 자동으로 찾아 연결.
+- 이후 앱 열 때·기록 변경 시 자동 동기화. 기록별 최신 수정 우선 병합, 삭제도 반영.
+- 토큰은 해당 기기에만 저장됩니다.

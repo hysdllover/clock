@@ -235,7 +235,14 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
       <button id="bResetT">목표 기본값 복원</button>
       <button id="bWipe" class="warn">모든 기록 삭제</button>
     </div>
-    <p class="muted">기록은 이 기기 브라우저에 저장됩니다. 기기 이동·백업은 기록 탭의 내보내기/가져오기를 사용하세요.</p>
+    <p class="muted">기록은 이 기기 브라우저에 저장됩니다. 기기 간 공유는 아래 Gist 동기화를 사용하세요.</p>
+    <h2>Gist 동기화 (iPhone ↔ iPad)</h2>
+    <div class="dlg" style="padding:0">
+      <label class="f">GitHub 토큰 (gist 권한)<input id="syTok" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ghp_… 또는 github_pat_…"></label>
+      <label class="f">Gist ID (비우면 자동 검색·생성)<input id="syGist" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      <div class="tools"><button id="bSync">저장 · 지금 동기화</button><button id="bSyncOff" class="warn">연결 해제</button></div>
+      <p class="muted" id="syMsg" style="margin:0;font-size:12px"></p>
+    </div>
   </section>
 </main>
 
@@ -269,7 +276,10 @@ let records = load('sn_records', []);
 const idle = subj => ({ subj, status: 'idle', t0: 0, paused: 0, pAt: 0, final: 0, laps: [] });
 let run = load('sn_run', null) || idle('kor');
 const saveRun = () => store('sn_run', run);
-const saveRecs = () => store('sn_records', records);
+let dels = load('sn_del', {});   // 삭제 기록 {id: ms} — 동기화용
+let tU = load('sn_targets_u', 0);
+const saveRecs = () => { store('sn_records', records); store('sn_del', dels); scheduleSync(); };
+const saveTargets = () => { tU = Date.now(); store('sn_targets', targets); store('sn_targets_u', tU); scheduleSync(); };
 
 /* format */
 const pad = n => String(n).padStart(2, '0');
@@ -408,7 +418,7 @@ function finish() {
 function saveRecord() {
   let prev = 0;
   const laps = run.laps.map(l => { const sec = Math.round(l.at - prev); prev = l.at; return { name: l.name, sec }; });
-  records.unshift({ id: uid(), subj: run.subj, date: new Date(run.t0).toISOString(), total: Math.round(run.final), laps, score: $('#dnScore').value.trim(), memo: $('#dnMemo').value.trim() });
+  records.unshift({ id: uid(), subj: run.subj, date: new Date(run.t0).toISOString(), total: Math.round(run.final), laps, score: $('#dnScore').value.trim(), memo: $('#dnMemo').value.trim(), u: Date.now() });
   saveRecs(); run = idle(run.subj); saveRun(); renderTimer(); toast('기록 저장됨');
 }
 function resetRun() {
@@ -482,12 +492,12 @@ function openEditor(id) {
   };
   $('#lapEd').onclick = e => { const d = e.target.dataset.del; if (d !== undefined) { r.laps.splice(+d, 1); redraw(); } };
   $('#edAdd').onclick = () => { const s = f.subj.value; r.laps.push({ name: lapName(s, r.laps.length), sec: 0 }); redraw(); };
-  if (id) $('#edDel').onclick = () => { if (confirm('이 기록을 삭제할까요?')) { records = records.filter(x => x.id !== id); saveRecs(); $('#dlg').close(); renderRecords(); toast('삭제됨'); } };
+  if (id) $('#edDel').onclick = () => { if (confirm('이 기록을 삭제할까요?')) { records = records.filter(x => x.id !== id); dels[id] = Date.now(); saveRecs(); $('#dlg').close(); renderRecords(); toast('삭제됨'); } };
   $('#edSave').onclick = () => {
     const tot = parseT(f.total.value);
     if (isNaN(tot)) { alert('총 소요를 mm:ss 형식으로 입력하세요.'); return; }
     const d = new Date(f.date.value);
-    Object.assign(r, { subj: f.subj.value, date: isNaN(d) ? r.date : d.toISOString(), total: Math.round(tot), score: f.score.value.trim(), memo: f.memo.value.trim() });
+    Object.assign(r, { subj: f.subj.value, date: isNaN(d) ? r.date : d.toISOString(), total: Math.round(tot), score: f.score.value.trim(), memo: f.memo.value.trim(), u: Date.now() });
     if (id) records[records.findIndex(x => x.id === id)] = r;
     else { r.id = uid(); records.push(r); }
     records.sort((a, b) => b.date.localeCompare(a.date));
@@ -508,8 +518,8 @@ function importJSON(file) {
       const data = JSON.parse(rd.result), list = Array.isArray(data) ? data : data.records;
       if (!Array.isArray(list)) throw 0;
       const ids = new Set(records.map(r => r.id)); let n = 0;
-      list.forEach(r => { if (r && SUBJ[r.subj] && Array.isArray(r.laps) && !ids.has(r.id)) { records.push({ ...r, id: r.id || uid() }); n++; } });
-      if (data.targets && confirm('목표 구간 설정도 가져올까요?')) { targets = data.targets; store('sn_targets', targets); renderSettings(); }
+      list.forEach(r => { if (r && SUBJ[r.subj] && Array.isArray(r.laps) && !ids.has(r.id)) { records.push({ ...r, id: r.id || uid(), u: Date.now() }); n++; } });
+      if (data.targets && confirm('목표 구간 설정도 가져올까요?')) { targets = data.targets; saveTargets(); renderSettings(); }
       records.sort((a, b) => b.date.localeCompare(a.date)); saveRecs(); renderRecords(); toast(`${n}개 기록 가져옴`);
     } catch (e) { alert('올바른 백업 파일이 아닙니다.'); }
   };
@@ -579,15 +589,87 @@ $('#tsets').addEventListener('change', e => {
   if (!k || !e.target.dataset.k) return;
   if (e.target.dataset.k === 'name') targets[k][i].name = e.target.value.trim() || `구간 ${i + 1}`;
   else targets[k][i].min = Math.max(0, +e.target.value || 0);
-  store('sn_targets', targets); renderSettings(); renderLaps();
+  saveTargets(); renderSettings(); renderLaps();
 });
 $('#tsets').addEventListener('click', e => {
   const c = e.target.closest('[data-s]'); if (!c) return; const k = c.dataset.s;
   if (e.target.dataset.del !== undefined) targets[k].splice(+e.target.dataset.del, 1);
   else if (e.target.dataset.add) targets[k].push({ name: `구간 ${targets[k].length + 1}`, min: 10 });
   else return;
-  store('sn_targets', targets); renderSettings(); renderLaps();
+  saveTargets(); renderSettings(); renderLaps();
 });
+
+/* ───────── gist sync ───────── */
+const GH = 'https://api.github.com', GF = 'suneung-timer.json';
+let sync = load('sn_sync', { token: '', gist: '', last: 0 }), syncing = false, syncAgain = false;
+const saveSync = () => store('sn_sync', sync);
+function syMsg(t) { const el = $('#syMsg'); if (el) el.textContent = t; }
+function syStatus() { syMsg(!sync.token ? '연결 안 됨' : sync.last ? `마지막 동기화 ${new Date(sync.last).toLocaleString('ko-KR')}` : '연결됨 · 동기화 전'); }
+async function gh(path, opt = {}) {
+  const r = await fetch(GH + path, { ...opt, cache: 'no-store', headers: { Authorization: 'Bearer ' + sync.token, Accept: 'application/vnd.github+json', ...(opt.body ? { 'Content-Type': 'application/json' } : {}) } });
+  if (!r.ok) throw new Error(r.status === 401 ? '토큰이 올바르지 않음' : r.status === 404 ? 'Gist를 찾을 수 없음' : r.status === 403 ? '권한 없음(gist 권한 확인)' : 'HTTP ' + r.status);
+  return r.json();
+}
+async function findGist() {
+  for (let p = 1; p <= 10; p++) {
+    const l = await gh(`/gists?per_page=100&page=${p}`), g = l.find(g => g.files[GF]);
+    if (g) return g.id; if (l.length < 100) break;
+  }
+  return '';
+}
+const sig = d => JSON.stringify([d.records.map(r => r.id + ':' + (r.u || 0)).sort(), Object.entries(d.deleted || {}).sort(), d.targetsU || 0]);
+const snap = () => ({ app: 'suneung-timer', v: 1, records, deleted: dels, targets, targetsU: tU });
+let syncT = null;
+function scheduleSync() { if (sync.token) { clearTimeout(syncT); syncT = setTimeout(doSync, 2000); } }
+async function doSync(manual) {
+  if (!sync.token) return;
+  if (syncing) { syncAgain = true; return; }
+  if (!navigator.onLine) { if (manual) toast('오프라인'); syMsg('오프라인 · 연결되면 동기화'); return; }
+  syncing = true; syMsg('동기화 중…');
+  try {
+    if (!sync.gist) { sync.gist = await findGist(); saveSync(); }
+    let R = { records: [], deleted: {}, targets: null, targetsU: 0 };
+    if (sync.gist) {
+      const f = (await gh('/gists/' + sync.gist)).files[GF];
+      if (f) R = { ...R, ...JSON.parse(f.truncated ? await (await fetch(f.raw_url, { cache: 'no-store' })).text() : f.content) };
+    }
+    const localSig = sig(snap());
+    // 병합: 기록은 u(수정 시각) 최신 우선, 삭제 기록은 이후 수정이 없으면 적용
+    const del = { ...R.deleted };
+    Object.entries(dels).forEach(([k, t]) => { if (!(del[k] >= t)) del[k] = t; });
+    const m = new Map();
+    [...R.records, ...records].forEach(r => { const o = m.get(r.id); if (!o || (r.u || 0) >= (o.u || 0)) m.set(r.id, r); });
+    records = [...m.values()].filter(r => !(del[r.id] >= (r.u || 0))).sort((a, b) => b.date.localeCompare(a.date));
+    dels = del;
+    if (R.targets && R.targetsU > tU) { targets = R.targets; tU = R.targetsU; }
+    store('sn_records', records); store('sn_del', dels); store('sn_targets', targets); store('sn_targets_u', tU);
+    const out = snap();
+    if (sig(out) !== sig(R) || !sync.gist) {
+      const body = JSON.stringify({ description: '수능 실전 타이머 기록', files: { [GF]: { content: JSON.stringify(out) } }, ...(sync.gist ? {} : { public: false }) });
+      const g = await gh(sync.gist ? '/gists/' + sync.gist : '/gists', { method: sync.gist ? 'PATCH' : 'POST', body });
+      sync.gist = g.id;
+    }
+    sync.last = Date.now(); saveSync(); syStatus();
+    if ($('#syGist')) $('#syGist').value = sync.gist;
+    if (sig(out) !== localSig) {
+      renderLaps();
+      const v = ['rec', 'stat', 'set'].find(x => !$('#v-' + x).hidden);
+      if (v === 'rec') renderRecords(); if (v === 'stat') renderStats(); if (v === 'set') renderSettings();
+    }
+    if (manual) toast('동기화 완료');
+  } catch (e) { syMsg('동기화 실패: ' + e.message); if (manual) toast('동기화 실패'); }
+  syncing = false;
+  if (syncAgain) { syncAgain = false; doSync(); }
+}
+$('#syTok').value = sync.token; $('#syGist').value = sync.gist; syStatus();
+$('#bSync').onclick = () => {
+  const tok = $('#syTok').value.trim(), gid = $('#syGist').value.trim().replace(/^.*\//, '');
+  if (!tok) { toast('토큰을 입력하세요'); return; }
+  if (tok !== sync.token || gid !== sync.gist) sync = { token: tok, gist: gid, last: 0 };
+  saveSync(); doSync(true);
+};
+$('#bSyncOff').onclick = () => { if (confirm('이 기기의 동기화 연결을 해제할까요? (기록은 유지)')) { sync = { token: '', gist: '', last: 0 }; saveSync(); $('#syTok').value = $('#syGist').value = ''; syStatus(); } };
+window.addEventListener('online', () => doSync());
 
 /* ───────── wiring ───────── */
 function show(v) {
@@ -618,19 +700,20 @@ $('#bImport').onclick = () => $('#fImport').click();
 $('#fImport').onchange = e => { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ''; };
 $('#bPrint').onclick = () => { buildPrint(); window.print(); };
 window.addEventListener('beforeprint', buildPrint);
-$('#bResetT').onclick = () => { if (confirm('목표 구간을 기본값으로 되돌릴까요?')) { targets = defTargets(); store('sn_targets', targets); renderSettings(); renderLaps(); } };
-$('#bWipe').onclick = () => { if (confirm('모든 기록을 삭제할까요? 되돌릴 수 없습니다.')) { records = []; saveRecs(); toast('모두 삭제됨'); } };
+$('#bResetT').onclick = () => { if (confirm('목표 구간을 기본값으로 되돌릴까요?')) { targets = defTargets(); saveTargets(); renderSettings(); renderLaps(); } };
+$('#bWipe').onclick = () => { if (confirm('모든 기록을 삭제할까요? 되돌릴 수 없습니다.')) { const now = Date.now(); records.forEach(r => dels[r.id] = now); records = []; saveRecs(); toast('모두 삭제됨'); } };
 document.addEventListener('keydown', e => {
   if ($('#dlg').open || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || $('#v-timer').hidden) return;
   if (e.code === 'Space') { e.preventDefault(); $('#bMain').click(); }
   if (e.key === 'l' || e.key === 'Enter') { e.preventDefault(); if (run.status === 'running') lap(); }
 });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { tick(); if (run.status === 'running') wake(true); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { tick(); if (run.status === 'running') wake(true); doSync(); } });
 
 if (!SUBJ[run.subj]) run = idle('kor');
 buildClock();
 renderTimer();
 try { const v = sessionStorage.getItem('sn_view'); if (v && v !== 'timer') show(v); } catch (e) {}
+doSync();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
