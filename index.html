@@ -631,6 +631,7 @@ if (!SUBJ[run.subj]) run = idle('kor');
 buildClock();
 renderTimer();
 try { const v = sessionStorage.getItem('sn_view'); if (v && v !== 'timer') show(v); } catch (e) {}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
