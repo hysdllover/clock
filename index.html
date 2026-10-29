@@ -97,21 +97,78 @@ body.focus header,body.focus #subjSeg{display:none}
 body.focus #clock{width:min(88vw,70vh,560px)}
 body.focus .tgrid{padding-top:12px}
 
+/* tab bar (iPhone) */
+@media (max-width:759px){
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  #nav{position:fixed;z-index:5;left:0;right:0;bottom:0;border:0;border-top:1px solid var(--line);border-radius:0;
+    padding:4px max(8px,env(safe-area-inset-left)) calc(4px + env(safe-area-inset-bottom));
+    background:rgba(247,246,242,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  #nav button{min-height:46px;font-size:12px}
+  #nav button.on{background:transparent;font-weight:500}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))!important}
+}
+
 /* records */
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .tools button{min-height:36px;font-size:12px}
-.rlist{display:grid;gap:8px}
-@media (min-width:760px){.rlist{grid-template-columns:1fr 1fr}}
-.rec{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;padding:12px 14px;min-height:auto;font-weight:300}
+.rbar{display:grid;grid-template-columns:1fr 1fr auto;grid-template-areas:"q q q" "s a p";gap:8px;margin:10px 0}
+@media (min-width:760px){.rbar{grid-template-columns:1fr 130px auto auto;grid-template-areas:"q s a p"}}
+.rbar input{grid-area:q} .rbar select{grid-area:s} #bNewRec{grid-area:a} #bPrint{grid-area:p}
+.rbar input,.rbar select{min-height:40px}
+.rbar button{min-height:40px;font-size:12px}
+.kv.kv4{grid-template-columns:repeat(4,1fr);margin:10px 0 4px}
+.rsplit{display:grid;gap:16px}
+#rdetail{display:none}
+@media (min-width:900px){
+  .rsplit{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start}
+  #rdetail{display:block;position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow:auto}
+}
+.mhead{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:16px 4px 6px}
+.glist{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;
+  padding:11px 14px;min-height:auto;border:0;border-radius:0;font-weight:300;background:transparent}
+.rrow+.rrow{border-top:1px solid var(--line)}
+.rrow.sel{background:var(--navy-l)}
+.rmid{display:grid;gap:4px;min-width:0}
+.rmid .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr{text-align:right} .rr b{font-weight:300;font-size:17px;display:block}
+.lbar{position:relative;display:flex;gap:1px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.lbar i{display:block;height:100%;flex:none}
+.lbar.big{height:12px;border-radius:6px;overflow:visible}
+.lbar.big i:first-child{border-radius:6px 0 0 6px}
+.lbar .tk{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--text);opacity:.45}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+/* detail */
+.dv{display:grid;gap:12px}
+.dv .dh{display:flex;align-items:center;gap:8px}
+.dv .dh .x{margin-left:auto}
+.dv .big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.dv .big b{font-size:34px;font-weight:200;letter-spacing:.01em}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips span{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--bg);border:1px solid var(--line)}
+.ltab{width:100%;border-collapse:collapse;font-size:12px}
+.ltab th{font-weight:400;color:var(--muted);font-size:10px;text-align:right;padding:0 0 4px}
+.ltab th:first-child,.ltab td:first-child{text-align:left}
+.ltab td{padding:7px 0;border-top:1px solid var(--line);text-align:right}
+.ltab tfoot td{color:var(--muted)}
+.memo{white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px}
+.dnav{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
+.dempty{color:var(--muted);text-align:center;padding:40px 0}
+#lastRec{text-align:left;width:100%;min-height:auto;padding:12px 14px;display:grid;gap:6px;font-weight:300}
 .tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--navy-l);color:var(--navy);white-space:nowrap}
 .tag.eng{background:var(--olive-l);color:var(--olive)}
 .tag.eth{background:var(--violet-l);color:#7a6ea0}
-.rec .meta{font-size:11px;color:var(--muted)}
-.rec .tt{font-size:17px;text-align:right}
-.rec .sc{display:block;font-size:11px;color:var(--violet);text-align:right}
+.meta{font-size:11px;color:var(--muted)}
+.sc{display:block;font-size:11px;color:var(--violet);text-align:right}
 
 /* dialog */
 dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 40px);background:var(--bg);color:var(--text)}
+#dlgView{background:var(--card)}
+#dlgView .dv{padding:18px}
+@media (max-width:759px){
+  dialog{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:92dvh}
+  dialog .dlg,#dlgView .dv{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+}
 dialog::backdrop{background:rgba(58,65,82,.35)}
 .dlg{padding:18px;display:grid;gap:10px}
 .dlg h3{margin:0;font-size:14px;font-weight:500;color:var(--navy)}
@@ -138,6 +195,8 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
 .tset{display:grid;gap:6px}
 .tset .r{display:grid;grid-template-columns:1fr 80px 40px;gap:6px}
 .tset .r button{min-height:40px;padding:0}
+.sbars{display:grid;gap:5px;margin-top:10px;font-size:10px}
+.sbars div{display:grid;grid-template-columns:52px 1fr 38px;gap:6px;align-items:center}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
@@ -204,6 +263,7 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
             <button id="bSave" class="pri">기록 저장</button>
           </div>
         </div>
+        <button id="lastRec" class="card" hidden></button>
       </div>
     </div>
   </section>
@@ -211,14 +271,17 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
   <!-- 기록 -->
   <section id="v-rec" hidden>
     <div class="seg" id="recSeg"></div>
-    <div class="tools">
-      <button id="bNewRec">+ 직접 추가</button>
-      <button id="bExport">내보내기</button>
-      <button id="bImport">가져오기</button>
+    <div class="kv kv4 num" id="rsum"></div>
+    <div class="rbar">
+      <input id="rq" type="search" placeholder="메모 · 구간 · 날짜 검색" autocomplete="off">
+      <select id="rsort"><option value="new">최신순</option><option value="old">오래된순</option><option value="fast">소요 짧은순</option><option value="score">점수 높은순</option></select>
+      <button id="bNewRec">+ 추가</button>
       <button id="bPrint">A4 인쇄</button>
-      <input type="file" id="fImport" accept="application/json,.json" hidden>
     </div>
-    <div class="rlist" id="rlist"></div>
+    <div class="rsplit">
+      <div id="rlist"></div>
+      <div id="rdetail" class="card"></div>
+    </div>
   </section>
 
   <!-- 통계 -->
@@ -232,6 +295,9 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
     <div class="sgrid" id="tsets"></div>
     <h2>데이터</h2>
     <div class="tools">
+      <button id="bExport">내보내기 (JSON)</button>
+      <button id="bImport">가져오기</button>
+      <input type="file" id="fImport" accept="application/json,.json" hidden>
       <button id="bResetT">목표 기본값 복원</button>
       <button id="bWipe" class="warn">모든 기록 삭제</button>
     </div>
@@ -246,6 +312,7 @@ label.f{display:grid;gap:4px;font-size:11px;color:var(--muted)}
   </section>
 </main>
 
+<dialog id="dlgView"><div class="dv" id="dvBody"></div></dialog>
 <dialog id="dlg"><form class="dlg" method="dialog" id="edForm"></form></dialog>
 <div id="printSheet"></div>
 <div class="toast" id="toast"></div>
@@ -375,7 +442,7 @@ function renderTimer() {
   $('#bEnd').disabled = st === 'idle' || st === 'done';
   $('#bReset').disabled = st === 'idle';
   $('#donePanel').hidden = st !== 'done';
-  renderLaps(); tick();
+  renderLaps(); renderLast(); tick();
   loop(st === 'running');
   wake(st === 'running');
 }
@@ -418,8 +485,9 @@ function finish() {
 function saveRecord() {
   let prev = 0;
   const laps = run.laps.map(l => { const sec = Math.round(l.at - prev); prev = l.at; return { name: l.name, sec }; });
-  records.unshift({ id: uid(), subj: run.subj, date: new Date(run.t0).toISOString(), total: Math.round(run.final), laps, score: $('#dnScore').value.trim(), memo: $('#dnMemo').value.trim(), u: Date.now() });
-  saveRecs(); run = idle(run.subj); saveRun(); renderTimer(); toast('기록 저장됨');
+  const id = uid();
+  records.unshift({ id, subj: run.subj, date: new Date(run.t0).toISOString(), total: Math.round(run.final), laps, score: $('#dnScore').value.trim(), memo: $('#dnMemo').value.trim(), u: Date.now() });
+  saveRecs(); run = idle(run.subj); saveRun(); renderTimer(); showDlg(id); toast('기록 저장됨');
 }
 function resetRun() {
   if (run.status !== 'idle' && !confirm(run.status === 'done' ? '이번 기록을 폐기할까요?' : '진행 중인 타이머를 리셋할까요?')) return;
@@ -448,20 +516,112 @@ function toggleFocus() {
 }
 
 /* ───────── records ───────── */
-let recFilter = 'all';
-function filtered() { return records.filter(r => recFilter === 'all' || r.subj === recFilter); }
+const WD = '일월화수목금토';
+const COL = ['#9aa7c0', '#b9bf98', '#d9b4ba', '#c3bad9', '#a8c4c0', '#d6c4a0'];
+const dShort = iso => { const d = new Date(iso); return `${pad(d.getMonth() + 1)}.${pad(d.getDate())} (${WD[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const dLong = iso => { const d = new Date(iso); return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} (${WD[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const hasScore = r => r.score !== '' && r.score != null && !isNaN(+r.score);
+const byNew = (a, b) => b.date.localeCompare(a.date);
+const lapsTxt = r => r.laps.map(l => esc(l.name) + ' ' + fmt(l.sec)).join(' · ') || '랩 없음';
+const wide = () => matchMedia('(min-width:900px)').matches;
+function lapBar(r, big) {
+  const D = SUBJ[r.subj].d * 60, w = s => (Math.min(s, D) / D * 100).toFixed(2) + '%';
+  let h = r.laps.length ? r.laps.map((l, i) => `<i style="width:${w(l.sec)};background:${COL[i % COL.length]}"></i>`).join('') : `<i style="width:${w(r.total)};background:${COL[0]}"></i>`;
+  if (big) { let a = 0; targets[r.subj].forEach(t => { a += t.min * 60; if (a < D) h += `<span class="tk" style="left:${w(a)}"></span>`; }); }
+  return `<span class="lbar${big ? ' big' : ''}">${h}</span>`;
+}
+
+let rv = { f: 'all', sort: 'new', ...load('sn_rview', {}), q: '' }, recSel = null, dvId = null;
+const saveRv = () => store('sn_rview', { f: rv.f, sort: rv.sort });
+function filtered() {
+  const q = rv.q.trim().toLowerCase();
+  const sc = r => hasScore(r) ? +r.score : -Infinity;
+  const by = { new: byNew, old: (a, b) => a.date.localeCompare(b.date), fast: (a, b) => a.total - b.total, score: (a, b) => sc(b) - sc(a) }[rv.sort] || byNew;
+  return records.filter(r => (rv.f === 'all' || r.subj === rv.f) &&
+    (!q || [dShort(r.date), r.memo, r.score, SUBJ[r.subj].name, SHORT[r.subj], ...r.laps.map(l => l.name)].join(' ').toLowerCase().includes(q))).sort(by);
+}
 function renderRecords() {
-  $('#recSeg').innerHTML = [['all', '전체'], ...Object.entries(SHORT)].map(([k, v]) => `<button data-f="${k}" class="${k === recFilter ? 'on' : ''}">${v}</button>`).join('');
-  const list = filtered();
-  $('#rlist').innerHTML = list.length ? list.map(r => `
-    <button class="rec card" data-id="${r.id}">
+  $('#recSeg').innerHTML = [['all', '전체'], ...Object.entries(SHORT)].map(([k, v]) => `<button data-f="${k}" class="${k === rv.f ? 'on' : ''}">${v}</button>`).join('');
+  $('#rsort').value = rv.sort;
+  const list = filtered(), tot = list.map(r => r.total), sc = list.filter(hasScore).map(r => +r.score);
+  $('#rsum').innerHTML = `<div><span>횟수</span><b>${list.length}</b></div><div><span>평균 소요</span><b>${list.length ? fmt(avg(tot)) : '–'}</b></div><div><span>최단</span><b>${list.length ? fmt(Math.min(...tot)) : '–'}</b></div><div><span>평균 점수</span><b>${sc.length ? avg(sc).toFixed(1) : '–'}</b></div>`;
+  if (wide() && !list.some(r => r.id === recSel)) recSel = list[0]?.id || null;
+  const row = r => `<button class="rrow${wide() && r.id === recSel ? ' sel' : ''}" data-id="${r.id}">
       <span class="tag ${r.subj}">${SHORT[r.subj]}</span>
-      <span><span class="num">${dateStr(r.date)}</span><span class="meta" style="display:block">${r.laps.map(l => esc(l.name) + ' ' + fmt(l.sec)).join(' · ') || '랩 없음'}${r.memo ? ' — ' + esc(r.memo) : ''}</span></span>
-      <span class="tt num">${fmt(r.total)}${r.score !== '' ? `<span class="sc">${esc(r.score)}점</span>` : ''}</span>
-    </button>`).join('') : '<p class="muted">기록이 없습니다.</p>';
+      <span class="rmid"><span class="num">${dShort(r.date)}</span>${lapBar(r)}<span class="meta">${lapsTxt(r)}${r.memo ? ' — ' + esc(r.memo) : ''}</span></span>
+      <span class="rr num"><b>${fmt(r.total)}</b>${hasScore(r) || r.score ? `<span class="sc">${esc(r.score)}점</span>` : ''}</span>
+    </button>`;
+  let h = '';
+  if (!list.length) h = `<p class="muted">${records.length ? '조건에 맞는 기록이 없습니다.' : '기록이 없습니다. 타이머 종료 후 저장하거나 + 추가로 입력하세요.'}</p>`;
+  else if (rv.sort === 'new' || rv.sort === 'old') {
+    const g = new Map();
+    list.forEach(r => { const d = new Date(r.date), k = `${d.getFullYear()}년 ${d.getMonth() + 1}월`; if (!g.has(k)) g.set(k, []); g.get(k).push(r); });
+    g.forEach((rs, k) => h += `<div class="mhead"><span>${k}</span><span class="num">${rs.length}회 · 평균 ${fmt(avg(rs.map(r => r.total)))}</span></div><div class="glist">${rs.map(row).join('')}</div>`);
+  } else h = `<div class="glist" style="margin-top:16px">${list.map(row).join('')}</div>`;
+  $('#rlist').innerHTML = h;
+  const r = records.find(x => x.id === recSel);
+  $('#rdetail').innerHTML = r ? `<div class="dv">${detailHTML(r)}</div>` : '<div class="dempty">기록을 선택하세요</div>';
+}
+function detailHTML(r, inDlg) {
+  const S = SUBJ[r.subj], lim = S.d * 60, T = targets[r.subj];
+  const same = records.filter(x => x.subj === r.subj && x.id !== r.id);
+  const prev = same.filter(x => x.date < r.date).sort(byNew)[0];
+  const dif = d => `<b class="${d > 0 ? 'over' : 'under'}" style="font-weight:400">${fmtDiff(Math.round(d))}</b>`;
+  const chips = [`여유 ${fmt(lim - r.total)}`];
+  if (same.length) chips.push(`평균 대비 ${dif(r.total - avg(same.map(x => x.total)))}`);
+  if (prev) {
+    chips.push(`직전 대비 ${dif(r.total - prev.total)}`);
+    if (hasScore(r) && hasScore(prev)) { const d = +r.score - +prev.score; chips.push(`점수 ${d > 0 ? '+' : ''}${d}`); }
+  }
+  let acc = 0;
+  const rows = r.laps.map((l, i) => {
+    const t = T.find(t => t.name === l.name) || T[i], pa = same.flatMap(x => x.laps.filter(y => y.name === l.name).map(y => y.sec));
+    acc += l.sec;
+    return `<tr><td><span class="dot" style="background:${COL[i % COL.length]}"></span>${esc(l.name)}</td><td>${fmt(l.sec)}</td>
+      <td>${t ? dif(l.sec - t.min * 60) + `<span class="muted"> /${t.min}분</span>` : ''}</td><td>${pa.length ? dif(l.sec - avg(pa)) : ''}</td>
+      <td class="muted">${clockStr(S.s * 60 + acc).slice(0, 5)}</td></tr>`;
+  }).join('');
+  const L = filtered(), i = L.findIndex(x => x.id === r.id);
+  return `<div class="dh"><span class="tag ${r.subj}">${S.name}</span><span class="muted num">${dLong(r.date)}</span>${inDlg ? '<button class="ghost x" data-act="close">닫기</button>' : ''}</div>
+    <div class="big num"><b>${fmt(r.total)}</b><span class="muted">/ ${S.d}:00</span>${r.score ? `<span class="sc" style="display:inline;font-size:16px;margin-left:auto">${esc(r.score)}점</span>` : ''}</div>
+    ${lapBar(r, true)}
+    <div class="chips num">${chips.map(c => `<span>${c}</span>`).join('')}</div>
+    ${r.laps.length ? `<table class="ltab num"><thead><tr><th>구간</th><th>소요</th><th>목표 대비</th><th>평균 대비</th><th>종료</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="muted" style="margin:0">구간 기록 없음</p>'}
+    ${r.memo ? `<div class="memo">${esc(r.memo)}</div>` : ''}
+    <div class="dnav"><button data-act="prev" ${i <= 0 ? 'disabled' : ''}>‹ 이전</button><button data-act="edit">수정</button><button data-act="next" ${i < 0 || i >= L.length - 1 ? 'disabled' : ''}>다음 ›</button></div>`;
+}
+function showDlg(id) {
+  const r = records.find(x => x.id === id); if (!r) return;
+  dvId = id; $('#dvBody').innerHTML = detailHTML(r, true);
+  if (!$('#dlgView').open) $('#dlgView').showModal();
+}
+function openDetail(id) {
+  if (!$('#v-rec').hidden && wide()) { recSel = id; renderRecords(); } else showDlg(id);
+}
+function navDetail(id, step) {
+  const L = filtered(), n = L[L.findIndex(x => x.id === id) + step];
+  if (n) $('#dlgView').open ? showDlg(n.id) : openDetail(n.id);
+}
+function detailAct(e) {
+  const a = e.target.closest('[data-act]')?.dataset.act; if (!a) return;
+  const inDlg = $('#dlgView').open, id = inDlg ? dvId : recSel;
+  if (a === 'close') $('#dlgView').close();
+  if (a === 'edit') { if (inDlg) $('#dlgView').close(); openEditor(id); }
+  if (a === 'prev' || a === 'next') navDetail(id, a === 'next' ? 1 : -1);
+}
+function afterRecChange(id) {
+  if (!$('#v-rec').hidden) renderRecords();
+  renderLast();
+  if (id) openDetail(id);
+}
+function renderLast() {
+  const b = $('#lastRec'), r = run.status === 'idle' && records.filter(x => x.subj === run.subj).sort(byNew)[0];
+  b.hidden = !r; if (!r) return;
+  b.dataset.id = r.id;
+  b.innerHTML = `<span class="lap-head" style="padding:0"><span>최근 기록 · ${dShort(r.date)}</span><span class="num">${fmt(r.total)}${r.score ? ' · ' + esc(r.score) + '점' : ''}</span></span>${lapBar(r)}<span class="meta">${lapsTxt(r)}</span>`;
 }
 function openEditor(id) {
-  const r = id ? structuredClone(records.find(x => x.id === id)) : { id: null, subj: recFilter === 'all' ? run.subj : recFilter, date: new Date().toISOString(), total: 0, laps: [], score: '', memo: '' };
+  const r = id ? structuredClone(records.find(x => x.id === id)) : { id: null, subj: rv.f === 'all' ? run.subj : rv.f, date: new Date().toISOString(), total: 0, laps: [], score: '', memo: '' };
   const f = $('#edForm');
   const lapRows = () => r.laps.map((l, i) => `<div class="r"><input data-k="name" data-i="${i}" value="${esc(l.name)}" placeholder="구간 이름"><input data-k="sec" data-i="${i}" class="num" inputmode="decimal" value="${fmt(l.sec)}" placeholder="mm:ss"><button type="button" data-del="${i}" class="warn" aria-label="삭제">×</button></div>`).join('');
   const sum = () => r.laps.reduce((a, l) => a + l.sec, 0);
@@ -492,7 +652,7 @@ function openEditor(id) {
   };
   $('#lapEd').onclick = e => { const d = e.target.dataset.del; if (d !== undefined) { r.laps.splice(+d, 1); redraw(); } };
   $('#edAdd').onclick = () => { const s = f.subj.value; r.laps.push({ name: lapName(s, r.laps.length), sec: 0 }); redraw(); };
-  if (id) $('#edDel').onclick = () => { if (confirm('이 기록을 삭제할까요?')) { records = records.filter(x => x.id !== id); dels[id] = Date.now(); saveRecs(); $('#dlg').close(); renderRecords(); toast('삭제됨'); } };
+  if (id) $('#edDel').onclick = () => { if (confirm('이 기록을 삭제할까요?')) { records = records.filter(x => x.id !== id); dels[id] = Date.now(); saveRecs(); $('#dlg').close(); if (recSel === id) recSel = null; afterRecChange(); toast('삭제됨'); } };
   $('#edSave').onclick = () => {
     const tot = parseT(f.total.value);
     if (isNaN(tot)) { alert('총 소요를 mm:ss 형식으로 입력하세요.'); return; }
@@ -501,7 +661,7 @@ function openEditor(id) {
     if (id) records[records.findIndex(x => x.id === id)] = r;
     else { r.id = uid(); records.push(r); }
     records.sort((a, b) => b.date.localeCompare(a.date));
-    saveRecs(); $('#dlg').close(); renderRecords(); toast('저장됨');
+    saveRecs(); $('#dlg').close(); afterRecChange(r.id); toast('저장됨');
   };
   $('#dlg').showModal();
 }
@@ -520,17 +680,17 @@ function importJSON(file) {
       const ids = new Set(records.map(r => r.id)); let n = 0;
       list.forEach(r => { if (r && SUBJ[r.subj] && Array.isArray(r.laps) && !ids.has(r.id)) { records.push({ ...r, id: r.id || uid(), u: Date.now() }); n++; } });
       if (data.targets && confirm('목표 구간 설정도 가져올까요?')) { targets = data.targets; saveTargets(); renderSettings(); }
-      records.sort((a, b) => b.date.localeCompare(a.date)); saveRecs(); renderRecords(); toast(`${n}개 기록 가져옴`);
+      records.sort(byNew); saveRecs(); afterRecChange(); toast(`${n}개 기록 가져옴`);
     } catch (e) { alert('올바른 백업 파일이 아닙니다.'); }
   };
   rd.readAsText(file);
 }
 function buildPrint() {
   const list = filtered();
-  $('#printSheet').innerHTML = `<h1>수능 실전 타이머 기록${recFilter === 'all' ? '' : ' · ' + SUBJ[recFilter].name}</h1>
-    <p>${list.length}회 · 출력 ${dateStr(new Date().toISOString())}</p>
+  $('#printSheet').innerHTML = `<h1>수능 실전 타이머 기록${rv.f === 'all' ? '' : ' · ' + SUBJ[rv.f].name}</h1>
+    <p>${list.length}회${list.length ? ' · 평균 ' + fmt(avg(list.map(r => r.total))) : ''} · 출력 ${dateStr(new Date().toISOString())}</p>
     <table><thead><tr><th>일시</th><th>과목</th><th>총 소요</th><th>구간</th><th>점수</th><th>메모</th></tr></thead><tbody>
-    ${list.map(r => `<tr><td class="num">${dateStr(r.date)}</td><td>${SHORT[r.subj]}</td><td class="num">${fmt(r.total)} / ${SUBJ[r.subj].d}:00</td><td>${r.laps.map(l => esc(l.name) + ' ' + fmt(l.sec)).join('<br>')}</td><td>${esc(r.score)}</td><td>${esc(r.memo)}</td></tr>`).join('')}
+    ${list.map(r => `<tr><td class="num">${dLong(r.date)}</td><td>${SHORT[r.subj]}</td><td class="num">${fmt(r.total)} / ${SUBJ[r.subj].d}:00</td><td>${r.laps.map(l => esc(l.name) + ' ' + fmt(l.sec)).join('<br>')}</td><td>${esc(r.score)}</td><td>${esc(r.memo)}</td></tr>`).join('')}
     </tbody></table>`;
 }
 
@@ -570,6 +730,7 @@ function renderStats() {
       <div class="kv num"><div><span>평균 소요</span><b>${fmt(avg(tot))}</b></div><div><span>최단</span><b>${fmt(Math.min(...tot))}</b></div><div><span>평균 점수</span><b>${sc.length ? avg(sc).toFixed(1) : '–'}</b></div></div>
       ${rows ? `<table class="parts"><tr><td class="muted">구간 평균</td><td></td><td class="muted">목표 대비</td></tr>${rows}</table>` : ''}
       ${lineChart(last.map(r => r.total), { ref: S.d * 60, color: 'var(--navy)', fmtY: v => Math.round(v / 60) + '분', minY: 0 })}
+      <div class="sbars num">${rs.slice(-8).reverse().map(r => `<div data-id="${r.id}"><span class="muted">${dShort(r.date).slice(0, 5)}</span>${lapBar(r)}<span style="text-align:right">${fmt(r.total)}</span></div>`).join('')}</div>
       ${sc.length >= 2 ? lineChart(last.filter(r => r.score !== '' && !isNaN(+r.score)).map(r => +r.score), { color: 'var(--violet)', fmtY: v => Math.round(v) + '점' }) : ''}
     </div>`;
   }).join('');
@@ -652,7 +813,7 @@ async function doSync(manual) {
     sync.last = Date.now(); saveSync(); syStatus();
     if ($('#syGist')) $('#syGist').value = sync.gist;
     if (sig(out) !== localSig) {
-      renderLaps();
+      renderLaps(); renderLast();
       const v = ['rec', 'stat', 'set'].find(x => !$('#v-' + x).hidden);
       if (v === 'rec') renderRecords(); if (v === 'stat') renderStats(); if (v === 'set') renderSettings();
     }
@@ -692,8 +853,18 @@ $('#bDiscard').onclick = resetRun;
 $('#bSave').onclick = saveRecord;
 $('#bFocus').onclick = toggleFocus;
 $('#laps').addEventListener('change', e => { const i = e.target.dataset.i; if (i !== undefined) { run.laps[+i].name = e.target.value.trim() || lapName(run.subj, +i); saveRun(); } });
-$('#recSeg').onclick = e => { const f = e.target.dataset.f; if (f) { recFilter = f; renderRecords(); } };
-$('#rlist').onclick = e => { const b = e.target.closest('[data-id]'); if (b) openEditor(b.dataset.id); };
+$('#recSeg').onclick = e => { const f = e.target.dataset.f; if (f) { rv.f = f; saveRv(); renderRecords(); } };
+$('#rsort').onchange = e => { rv.sort = e.target.value; saveRv(); renderRecords(); };
+$('#rq').oninput = e => { rv.q = e.target.value; renderRecords(); };
+$('#rlist').onclick = e => { const b = e.target.closest('[data-id]'); if (b) openDetail(b.dataset.id); };
+$('#lastRec').onclick = e => showDlg(e.currentTarget.dataset.id);
+$('#sgrid').onclick = e => { const b = e.target.closest('[data-id]'); if (b) showDlg(b.dataset.id); };
+$('#rdetail').onclick = detailAct;
+$('#dlgView').onclick = e => { if (e.target === $('#dlgView')) $('#dlgView').close(); else detailAct(e); };
+let tx = null;
+$('#dlgView').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+$('#dlgView').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 70) navDetail(dvId, dx < 0 ? 1 : -1); });
+matchMedia('(min-width:900px)').addEventListener('change', () => { if (!$('#v-rec').hidden) renderRecords(); });
 $('#bNewRec').onclick = () => openEditor(null);
 $('#bExport').onclick = exportJSON;
 $('#bImport').onclick = () => $('#fImport').click();
@@ -703,7 +874,7 @@ window.addEventListener('beforeprint', buildPrint);
 $('#bResetT').onclick = () => { if (confirm('목표 구간을 기본값으로 되돌릴까요?')) { targets = defTargets(); saveTargets(); renderSettings(); renderLaps(); } };
 $('#bWipe').onclick = () => { if (confirm('모든 기록을 삭제할까요? 되돌릴 수 없습니다.')) { const now = Date.now(); records.forEach(r => dels[r.id] = now); records = []; saveRecs(); toast('모두 삭제됨'); } };
 document.addEventListener('keydown', e => {
-  if ($('#dlg').open || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || $('#v-timer').hidden) return;
+  if ($('#dlg').open || $('#dlgView').open || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || $('#v-timer').hidden) return;
   if (e.code === 'Space') { e.preventDefault(); $('#bMain').click(); }
   if (e.key === 'l' || e.key === 'Enter') { e.preventDefault(); if (run.status === 'running') lap(); }
 });
