@@ -1,4 +1,4 @@
-const C = 'suneung-timer-v3';
+const C = 'suneung-timer-v4';
 const FILES = ['./', './index.html', './manifest.json', './icon.svg', './icon-180.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
